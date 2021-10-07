@@ -4,14 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "env NODE_ENV=prod node index.js",
+    "dev": "env NODE_ENV=dev nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Andres Arana Castillo",
   "type": "module",
   "license": "MIT",
   "dependencies": {
+    "dotenv": "^10.0.0",
     "express": "^4.17.1"
   },
   "devDependencies": {
