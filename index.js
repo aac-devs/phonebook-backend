@@ -1,4 +1,5 @@
 import express from 'express';
+import Person from './models/person.js';
 import cors from 'cors';
 import morgan from 'morgan';
 import config from './morganConfig.js';
@@ -9,35 +10,10 @@ app.use(express.json());
 app.use(morgan(config));
 app.use(express.static('build'));
 
-let persons = [
-  {
-    name: 'Arto Hellas',
-    number: '040-123456',
-    id: 1,
-  },
-  {
-    name: 'Ada Lovelace',
-    number: '39-44-5323523',
-    id: 2,
-  },
-  {
-    name: 'Dan Abramov',
-    number: '12-43-234345',
-    id: 3,
-  },
-  {
-    name: 'Mary Poppendieck',
-    number: '39-23-6423122',
-    id: 4,
-  },
-];
-
-app.get('/', (req, res) => {
-  res.send('<h1>PHONEBOOK</h1>');
-});
-
 app.get('/api/persons', (req, res) => {
-  res.json(persons);
+  Person.find({}).then((persons) => {
+    res.json(persons);
+  });
 });
 
 app.get('/info', (req, res) => {
@@ -73,17 +49,11 @@ app.post('/api/persons', (req, res) => {
       error: 'number missing',
     });
   const { name, number } = req.body;
-  const contact = persons.find(
-    (p) => p.name.toLowerCase() === name.toLowerCase()
-  );
-  if (contact)
-    return res.status(400).json({
-      error: 'name must be unique',
-    });
-  const id = Math.floor(Math.random() * 10000);
-  const newPerson = { name, number, id };
-  persons = persons.concat(newPerson);
-  res.json(newPerson);
+
+  const person = new Person({ name, number });
+  person.save().then((personSaved) => {
+    res.json(personSaved);
+  });
 });
 
 const PORT = process.env.PORT || 3001;
