@@ -11,10 +11,11 @@ app.use(morgan(config));
 app.use(express.static('build'));
 
 const errorHandler = (error, request, response, next) => {
-  console.error(error.message);
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' });
   } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message });
+  } else if (error.message.startsWith('Not Found')) {
     return response.status(400).json({ error: error.message });
   }
   next(error);
@@ -84,15 +85,23 @@ app.delete('/api/persons/:id', (req, res, next) => {
 
 // PUT
 app.put('/api/persons/:id', (req, res, next) => {
-  const person = {
-    number: req.body.number,
-  };
-  Person.findByIdAndUpdate(req.params.id, person, {
-    new: true,
-    runValidators: true,
-  })
-    .then((updatedPerson) => {
-      res.json(updatedPerson);
+  const oldPerson = Person.findById(req.params.id)
+    .then((result) => {
+      if (result === null)
+        throw new Error(
+          `Not Found: Information of ${req.body.name} has already been removed from server`
+        );
+      const person = {
+        number: req.body.number,
+      };
+      Person.findByIdAndUpdate(req.params.id, person, {
+        new: true,
+        runValidators: true,
+      })
+        .then((updatedPerson) => {
+          res.json(updatedPerson);
+        })
+        .catch((error) => next(error));
     })
     .catch((error) => next(error));
 });
