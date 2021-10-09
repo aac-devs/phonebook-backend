@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import mongoose from 'mongoose';
+import uniqueValidator from 'mongoose-unique-validator';
 
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -12,7 +13,11 @@ mongoose
   });
 
 const personSchema = new mongoose.Schema({
-  name: String,
+  name: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   number: String,
 });
 
@@ -23,5 +28,7 @@ personSchema.set('toJSON', {
     delete returnedObject.__v;
   },
 });
+
+personSchema.plugin(uniqueValidator);
 
 export default mongoose.model('Person', personSchema);
