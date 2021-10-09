@@ -5,7 +5,7 @@ import uniqueValidator from 'mongoose-unique-validator';
 
 mongoose
   .connect(process.env.MONGODB_URI)
-  .then((result) => {
+  .then(() => {
     console.log('connected to MongoDB');
   })
   .catch((error) => {
